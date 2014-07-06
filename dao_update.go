@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"fmt"
 	"reflect"
 
 	"labix.org/v2/mgo/bson"
@@ -66,17 +67,13 @@ func (dao *DAO) Update(id bson.ObjectId, params map[string]interface{}) (err err
 			}
 
 		default:
-			// Pass all other types that are not nil
-			elem := rval.Elem()
-			if elem.IsValid() {
-				sets[key] = elem // TODO check this actually works
-				panic("DAO Update: test this update logic actually works")
-			}
+			// Pass as is
+			sets[key] = val
 		}
 	}
 
-	//fmt.Println("+++ sets:\n", sets)
-	//fmt.Println("xxx unsets:\n", unsets)
+	fmt.Println("+++ sets:\n", sets)
+	fmt.Println("xxx unsets:\n", unsets)
 
 	err = dao.Coll.UpdateId(id, M{"$set": sets, "$unset": unsets})
 	return
