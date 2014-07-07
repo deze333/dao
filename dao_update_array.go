@@ -8,7 +8,7 @@ import "labix.org/v2/mgo/bson"
 
 // Adds element to array.
 // Key identifies array.
-func (dao *DAO) Update_ArrayAdd(id bson.ObjectId, key string, obj interface{}) (err error) {
+func (dao *DAO) Update_ArrayPush(id bson.ObjectId, key string, obj interface{}) (err error) {
 
 	err = dao.Coll.UpdateId(id, M{"$push": M{key: obj}})
 	return
