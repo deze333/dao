@@ -50,6 +50,6 @@ func (dao *DAO) DebugIndexes() {
 		buf.WriteString(", ")
 	}
 
-	// Ideally, indexing only happens once per deployment, hence WARNING
-	_D.WARNING("DAO: Indexes present", dao.collname, "idx", buf.String())
+	// Ideally, indexing only happens once per deployment, hence this NOTE
+	_D.NOTE2("DAO "+dao.collname, "idx", buf.String())
 }
