@@ -19,9 +19,9 @@ import (
 // IMPORTANT:
 // Force ID mode only supports pointers to structs.
 // ObjectId must be a pointer too.
-func (dao *DAO) Save(forceId bool, objs ...interface{}) (err error) {
-	if forceId {
-		err = saveExp(dao.Coll, forceId, objs...)
+func (dao *DAO) Save(forceID bool, objs ...interface{}) (err error) {
+	if forceID {
+		err = saveExp(dao.Coll, forceID, objs...)
 	} else {
 		err = dao.Coll.Insert(objs...)
 	}
@@ -29,17 +29,17 @@ func (dao *DAO) Save(forceId bool, objs ...interface{}) (err error) {
 }
 
 // Experimental implementation of save.
-func saveExp(coll *mgo.Collection, forceId bool, objs ...interface{}) (err error) {
+func saveExp(coll *mgo.Collection, forceID bool, objs ...interface{}) (err error) {
 
 	for _, obj := range objs {
 
 		switch reflect.ValueOf(obj).Kind() {
 		case reflect.Ptr:
-			err = setObjId(obj, forceId)
+			err = setObjId(obj, forceID)
 
 		case reflect.Struct:
 			err = errors.New("Save currently only supports pointers to structs")
-			//err = setObjId(&obj, forceId)
+			//err = setObjId(&obj, forceID)
 
 		default:
 			err = fmt.Errorf("Save does not support objs of type: %v",
@@ -55,7 +55,7 @@ func saveExp(coll *mgo.Collection, forceId bool, objs ...interface{}) (err error
 	return
 }
 
-func setObjId(obj interface{}, forceId bool) (err error) {
+func setObjId(obj interface{}, forceID bool) (err error) {
 
 	var rval = reflect.ValueOf(obj)
 	switch rval.Kind() {
@@ -69,7 +69,7 @@ func setObjId(obj interface{}, forceId bool) (err error) {
 		typ := rval.Elem().Type()
 		fn := findIdField(typ)
 		if fn != -1 {
-			setIdField(val.Field(fn), forceId)
+			setIdField(val.Field(fn), forceID)
 		} else {
 			return fmt.Errorf("Field with tag bson:\"_id\" not found")
 		}
@@ -78,7 +78,7 @@ func setObjId(obj interface{}, forceId bool) (err error) {
 		typ := reflect.TypeOf(obj)
 		fn := findIdField(typ)
 		if fn != -1 {
-			setIdField(rval.Field(fn), forceId)
+			setIdField(rval.Field(fn), forceID)
 		} else {
 			return fmt.Errorf("Field with tag bson:\"_id\" not found")
 		}
@@ -98,7 +98,7 @@ func findIdField(typ reflect.Type) int {
 	return -1
 }
 
-func setIdField(val reflect.Value, forceId bool) {
+func setIdField(val reflect.Value, forceID bool) {
 
 	id := bson.NewObjectId()
 	switch val.Kind() {
@@ -106,7 +106,7 @@ func setIdField(val reflect.Value, forceId bool) {
 	case reflect.Ptr:
 		//fmt.Println("\t\tField is a ptr, isNil =", val.IsNil())
 		// Only set if value is nil and force ID creation was requested
-		if val.IsNil() && forceId {
+		if val.IsNil() && forceID {
 			val.Set(reflect.ValueOf(&id))
 		}
 
