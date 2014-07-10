@@ -27,7 +27,7 @@ func (dao *DAO) GetAsMap(id bson.ObjectId, fields ...string) (obj map[string]int
 // Gets many documents matched by IDs into provided array.
 // Fields is an array of fields to be fetched.
 // Objs must be a pointer to an empty array of structs.
-func (dao *DAO) GetManyByIdsAs(objs interface{}, ids []bson.ObjectId, fields ...string) (err error) {
+func (dao *DAO) GetManyAs(objs interface{}, ids []bson.ObjectId, fields ...string) (err error) {
 
 	q := M{"_id": M{"$in": ids}}
 	err = dao.Coll.Find(q).Select(M{}.Select(fields...)).All(objs)
