@@ -32,3 +32,10 @@ func (dao *DAO) DeleteBy(kvals ...interface{}) (err error) {
 	err = dao.Coll.Remove(q)
 	return
 }
+
+// Deletes all objects from collection.
+func (dao *DAO) DeleteAll(are, you, sure bool) (err error) {
+
+	err = dao.Coll.Remove(M{})
+	return
+}
