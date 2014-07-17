@@ -19,11 +19,14 @@ import (
 // IMPORTANT:
 // Force ID mode only supports pointers to structs.
 // ObjectId must be a pointer too.
+// XXX Still not 100% how objs... work. Better to save one obj at a time.
 func (dao *DAO) Save(forceID bool, objs ...interface{}) (err error) {
 	if forceID {
 		err = saveExp(dao.Coll, forceID, objs...)
 	} else {
-		err = dao.Coll.Insert(objs...)
+		for _, obj := range objs {
+			err = dao.Coll.Insert(obj)
+		}
 	}
 	return
 }

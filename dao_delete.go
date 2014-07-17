@@ -3,6 +3,7 @@ package dao
 import (
 	"fmt"
 
+	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
 )
 
@@ -34,8 +35,12 @@ func (dao *DAO) DeleteBy(kvals ...interface{}) (err error) {
 }
 
 // Deletes all objects from collection.
-func (dao *DAO) DeleteAll(are, you, sure bool) (err error) {
+func (dao *DAO) DeleteAll(are, you, sure bool) (deleted int, err error) {
 
-	err = dao.Coll.Remove(M{})
+	var info *mgo.ChangeInfo
+	info, err = dao.Coll.RemoveAll(M{})
+	if info != nil {
+		deleted = info.Removed
+	}
 	return
 }
