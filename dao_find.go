@@ -22,11 +22,20 @@ func (dao *DAO) FindManyAs(objs interface{}, equals map[string]interface{}, fiel
 	return
 }
 
-// Finds many objects matching dateField to the specified time period.
+// Finds many objects matching dateKey to the specified time period.
 // Objs must be a pointer to an empty array of structs.
-func (dao *DAO) FindManyByPeriodAs(objs interface{}, dateField string, ps, pe time.Time, fields ...string) (err error) {
+func (dao *DAO) FindManyByIntervalAs(objs interface{}, dateKey string, ps, pe time.Time, fields ...string) (err error) {
 
-	q := M{dateField: M{"$gte": ps, "$lt": pe}}
+	q := M{dateKey: M{"$gte": ps, "$lt": pe}}
+	err = dao.Coll.Find(q).Select(M{}.Select(fields...)).All(objs)
+	return
+}
+
+// Finds many objects matching 'ps' and 'pe' field keys to be inside the specified time period.
+// Objs must be a pointer to an empty array of structs.
+func (dao *DAO) FindManyByPeriodAs(objs interface{}, psKey, peKey string, ps, pe time.Time, fields ...string) (err error) {
+
+	q := M{psKey: M{"$gte": ps}, peKey: M{"$lte": pe}}
 	err = dao.Coll.Find(q).Select(M{}.Select(fields...)).All(objs)
 	return
 }
