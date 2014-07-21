@@ -12,9 +12,26 @@ import (
 //------------------------------------------------------------
 
 // Sets single field to given value.
+// Provide empty string to unset the field regardless of field's type.
 func (dao *DAO) Update_Set(id bson.ObjectId, key string, obj interface{}) (err error) {
 
-	err = dao.Coll.UpdateId(id, M{"$set": M{key: obj}})
+	rval := reflect.ValueOf(obj)
+	switch rval.Kind() {
+
+	case reflect.String:
+		// String: "" means unset
+		str := rval.String()
+		//fmt.Println("Str =", str, ", len =", len(str))
+		if str == "" {
+			//fmt.Println("*** DAO SET = UNSET", dao.Coll.FullName, key)
+			err = dao.Coll.UpdateId(id, M{"$unset": M{key: ""}})
+		} else {
+			err = dao.Coll.UpdateId(id, M{"$set": M{key: obj}})
+		}
+
+	default:
+		err = dao.Coll.UpdateId(id, M{"$set": M{key: obj}})
+	}
 	return
 }
 
@@ -31,7 +48,7 @@ func (dao *DAO) Update(id bson.ObjectId, params map[string]interface{}) (err err
 	sets := M{}
 	unsets := M{}
 
-	//fmt.Println("*** UPDATE")
+	fmt.Println("*** DAO UPDATE", dao.Coll.FullName)
 	for key, val := range params {
 
 		// Extensive checking for nil is required b/c interface{} is never nil
@@ -72,9 +89,18 @@ func (dao *DAO) Update(id bson.ObjectId, params map[string]interface{}) (err err
 		}
 	}
 
-	fmt.Println("+++ sets:\n", sets)
-	fmt.Println("xxx unsets:\n", unsets)
+	q := M{}
+	if len(sets) > 0 {
+		q["$set"] = sets
+		fmt.Println("+++ sets:", sets)
+	}
+	if len(unsets) > 0 {
+		q["$unset"] = unsets
+		fmt.Println("xxx unsets:", unsets)
+	}
 
-	err = dao.Coll.UpdateId(id, M{"$set": sets, "$unset": unsets})
+	if len(q) > 0 {
+		err = dao.Coll.UpdateId(id, q)
+	}
 	return
 }
