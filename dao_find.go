@@ -23,6 +23,7 @@ func (dao *DAO) FindManyAs(objs interface{}, equals map[string]interface{}, fiel
 }
 
 // Finds many objects matching dateKey to the specified time period.
+// Note that interval is [ps, pe) meaning ps is EXCLUDED.
 // Objs must be a pointer to an empty array of structs.
 func (dao *DAO) FindManyByIntervalAs(objs interface{}, dateKey string, ps, pe time.Time, fields ...string) (err error) {
 
