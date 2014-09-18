@@ -35,9 +35,10 @@ var (
 // Session getter returns a copy of the master session.
 func getSession(servername, dbname, collname string) (sess *mgo.Session, coll *mgo.Collection) {
 
-	masterSess := _dbServers[servername]
-	sess = masterSess.Copy()
-	coll = sess.DB(dbname).C(collname)
+	if masterSess, ok := _dbServers[servername]; ok {
+		sess = masterSess.Copy()
+		coll = sess.DB(dbname).C(collname)
+	}
 	return
 }
 
