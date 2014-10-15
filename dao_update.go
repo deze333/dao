@@ -51,10 +51,28 @@ func (dao *DAO) Update(id bson.ObjectId, params map[string]interface{}) (err err
 	fmt.Println("*** DAO UPDATE", dao.Coll.FullName)
 	for key, val := range params {
 
+		// NOTE: ObjectId is actually a string! We need explicit cast.
+
+		// If that's ObjectId, we're done
+		if id, ok := val.(bson.ObjectId); ok {
+			//fmt.Println("Key = ", key, "ObjectId =", id)
+			sets[key] = id
+			continue
+		}
+
+		// If that's pointer to ObjectId, we're done
+		if id, ok := val.(*bson.ObjectId); ok && id != nil {
+			//fmt.Println("Key = ", key, "ObjectId =", id)
+			sets[key] = *id
+			continue
+		}
+
 		// Extensive checking for nil is required b/c interface{} is never nil
 		// http://golang.org/doc/faq#nil_error
 
 		rval := reflect.ValueOf(val)
+		//fmt.Println("Key = ", key, "Val =", val, "Rval =", rval, "Kind =", rval.Kind())
+
 		switch rval.Kind() {
 
 		case reflect.String:
@@ -81,6 +99,10 @@ func (dao *DAO) Update(id bson.ObjectId, params map[string]interface{}) (err err
 				} else {
 					sets[key] = str
 				}
+			} else {
+				// Pointer to something else, retrieve object
+				//fmt.Println("--- Pointer to NOT string", key, "=", val, "=", elem.Interface())
+				sets[key] = elem.Interface()
 			}
 
 		default:
