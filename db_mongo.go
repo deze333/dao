@@ -52,6 +52,12 @@ func connectToServer(params map[string]string) (err error) {
 		id = "_"
 	}
 
+	// Is server with this ID already connected?
+	if _, ok := _dbServers[id]; ok {
+		err = fmt.Errorf("Mongo DB server already connected: %v", id)
+		return
+	}
+
 	// Params
 	server := params[KEY_DB_SERVER]
 	options := params[KEY_DB_OPTIONS]
@@ -60,7 +66,7 @@ func connectToServer(params map[string]string) (err error) {
 
 	// Validate
 	if server == "" {
-		err = fmt.Errorf("Mongo DB init aborted due to empty 'server'")
+		err = fmt.Errorf("Mongo DB init aborted due to empty 'server' key")
 		return
 	}
 

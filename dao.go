@@ -37,7 +37,7 @@ func (dao *DAO) Open(servername, dbname, collname string, idxs *CollIndexes) {
 	dao.sess, dao.Coll = getSession(dao.server, dao.dbname, dao.collname)
 
 	if dao.sess == nil || dao.Coll == nil {
-		panic("DAO cannot create DB session. Perhaps connection closed?")
+		panic("DAO cannot acquire DB session. Perhaps connection was closed or DAO wasn't configured?")
 	}
 
 	// Ensure indexes
