@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"errors"
 	"fmt"
 
 	"labix.org/v2/mgo"
@@ -42,6 +43,15 @@ func getSession(servername, dbname, collname string) (sess *mgo.Session, coll *m
 	return
 }
 
+// Session getter returns a copy of the master session.
+func getDb(servername, dbname string) (db *mgo.Database) {
+
+	if masterSess, ok := _dbServers[servername]; ok {
+		db = masterSess.Copy().DB(dbname)
+	}
+	return
+}
+
 // Creates master DB session to given server and stores it for future reference.
 // Use getSession() to get a connection to a specific DB/collection.
 func connectToServer(params map[string]string) (err error) {
@@ -76,7 +86,7 @@ func connectToServer(params map[string]string) (err error) {
 		url += "/?" + options
 	}
 
-	fmt.Println("MongoDB URL      :", url)
+	fmt.Println("[dao] MongoDB URL      :", url)
 
 	// Enable logging ?
 	if log != "" {
@@ -95,18 +105,18 @@ func connectToServer(params map[string]string) (err error) {
 	switch mode {
 	case "eventual":
 		sess.SetMode(mgo.Eventual, true)
-		fmt.Println("MongoDB Mode     : Eventual")
+		fmt.Println("[dao] MongoDB Mode     : Eventual")
 
 	case "monotonic":
 		sess.SetMode(mgo.Monotonic, true)
-		fmt.Println("MongoDB Mode     : Monotonic")
+		fmt.Println("[dao] MongoDB Mode     : Monotonic")
 
 	case "strong":
 		sess.SetMode(mgo.Strong, true)
-		fmt.Println("MongoDB Mode     : Strong")
+		fmt.Println("[dao] MongoDB Mode     : Strong")
 
 	default:
-		fmt.Println("MongoDB Mode     : Undefined")
+		fmt.Println("[dao] MongoDB Mode     : Undefined")
 	}
 
 	// Remember connection
@@ -127,24 +137,29 @@ func disconnectServers() {
 //------------------------------------------------------------
 
 // Lists all collections present.
-func GetCollections(sess *mgo.Session, dbname string) (collnames []string) {
-	var err error
-	collnames, err = sess.DB(dbname).CollectionNames()
-	if err != nil {
-		panic(fmt.Sprintf("MongoDB cannot list collection names for '%v' due to error: %v", dbname, err.Error()))
+func GetCollections(servername, dbname string) (collnames []string, err error) {
+	if db := getDb(servername, dbname); db != nil {
+		collnames, err = db.CollectionNames()
+	} else {
+		err = errors.New("Cannot acquire Mongo DB")
 	}
 	return
 }
 
 // Checks if given collection exists.
-func IsCollectionExists(sess *mgo.Session, dbname, collname string) bool {
-	colls := GetCollections(sess, dbname)
+func IsCollectionExists(servername, dbname, collname string) (exists bool, err error) {
+	var colls []string
+	colls, err = GetCollections(servername, dbname)
+	if err != nil {
+		return
+	}
 	for _, name := range colls {
 		if name == collname {
-			return true
+			exists = true
+			return
 		}
 	}
-	return false
+	return
 }
 
 //------------------------------------------------------------
