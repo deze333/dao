@@ -17,7 +17,7 @@ func (dao *DAO) Update_ArrayPush(id bson.ObjectId, pushTo string, pushObj interf
 }
 
 // Adds pushObjs elements to array pushTo.
-func (dao *DAO) Update_ArrayPushAll(id bson.ObjectId, pushTo string, pushObjs []interface{}) (err error) {
+func (dao *DAO) Update_ArrayPushMany(id bson.ObjectId, pushTo string, pushObjs []interface{}) (err error) {
 
 	q := M{
 		"$pushAll": M{pushTo: pushObjs},
@@ -40,7 +40,7 @@ func (dao *DAO) Update_ArraysPullPush(id bson.ObjectId, pullFrom string, pullObj
 
 // Removes pullObjs elements from pullFrom array.
 // Adds pushObjs elements to pushTo array.
-func (dao *DAO) Update_ArraysPullPushAll(id bson.ObjectId, pullFrom string, pullObjs []interface{}, pushTo string, pushObjs []interface{}) (err error) {
+func (dao *DAO) Update_ArraysPullPushMany(id bson.ObjectId, pullFrom string, pullObjs []interface{}, pushTo string, pushObjs []interface{}) (err error) {
 
 	q := M{
 		"$pullAll": M{pullFrom: pullObjs},
@@ -61,7 +61,7 @@ func (dao *DAO) Update_ArrayPull(id bson.ObjectId, pullFrom string, pullObj inte
 }
 
 // Removes pullFrom array elements that matches pullObjs.
-func (dao *DAO) Update_ArrayPullAll(id bson.ObjectId, pullFrom string, pullObjs []interface{}) (err error) {
+func (dao *DAO) Update_ArrayPullMany(id bson.ObjectId, pullFrom string, pullObjs []interface{}) (err error) {
 
 	q := M{
 		"$pullAll": M{pullFrom: pullObjs},
