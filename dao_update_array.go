@@ -6,11 +6,23 @@ import "labix.org/v2/mgo/bson"
 // DAO update array methods
 //------------------------------------------------------------
 
-// Adds element to array.
-// Key identifies array.
-func (dao *DAO) Update_ArrayPush(id bson.ObjectId, key string, obj interface{}) (err error) {
+// Adds pushObj element to array pushTo.
+func (dao *DAO) Update_ArrayPush(id bson.ObjectId, pushTo string, pushObj interface{}) (err error) {
 
-	err = dao.Coll.UpdateId(id, M{"$push": M{key: obj}})
+	q := M{
+		"$push": M{pushTo: pushObj},
+	}
+	err = dao.Coll.UpdateId(id, q)
+	return
+}
+
+// Adds pushObjs elements to array pushTo.
+func (dao *DAO) Update_ArrayPushAll(id bson.ObjectId, pushTo string, pushObjs []interface{}) (err error) {
+
+	q := M{
+		"$pushAll": M{pushTo: pushObjs},
+	}
+	err = dao.Coll.UpdateId(id, q)
 	return
 }
 
@@ -26,11 +38,33 @@ func (dao *DAO) Update_ArraysPullPush(id bson.ObjectId, pullFrom string, pullObj
 	return
 }
 
+// Removes pullObjs elements from pullFrom array.
+// Adds pushObjs elements to pushTo array.
+func (dao *DAO) Update_ArraysPullPushAll(id bson.ObjectId, pullFrom string, pullObjs []interface{}, pushTo string, pushObjs []interface{}) (err error) {
+
+	q := M{
+		"$pullAll": M{pullFrom: pullObjs},
+		"$pushAll": M{pushTo: pushObjs},
+	}
+	err = dao.Coll.UpdateId(id, q)
+	return
+}
+
 // Removes pullFrom array element that matches pullObj.
 func (dao *DAO) Update_ArrayPull(id bson.ObjectId, pullFrom string, pullObj interface{}) (err error) {
 
 	q := M{
 		"$pull": M{pullFrom: pullObj},
+	}
+	err = dao.Coll.UpdateId(id, q)
+	return
+}
+
+// Removes pullFrom array elements that matches pullObjs.
+func (dao *DAO) Update_ArrayPullAll(id bson.ObjectId, pullFrom string, pullObjs []interface{}) (err error) {
+
+	q := M{
+		"$pullAll": M{pullFrom: pullObjs},
 	}
 	err = dao.Coll.UpdateId(id, q)
 	return
