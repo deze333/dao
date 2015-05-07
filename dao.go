@@ -1,5 +1,9 @@
 package dao
 
+import (
+	"labix.org/v2/mgo"
+)
+
 //------------------------------------------------------------
 // Open/close methods
 //------------------------------------------------------------
@@ -42,6 +46,13 @@ func (dao *DAO) Open(servername, dbname, collname string, idxs *CollIndexes) {
 
 	// Ensure indexes
 	dao.EnsureIndexes()
+}
+
+// Changes consistency to strong.
+func (dao *DAO) SetStrongMode() {
+	if dao.sess != nil {
+		dao.sess.SetMode(mgo.Strong, true)
+	}
 }
 
 // Closes session.
