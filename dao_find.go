@@ -27,7 +27,18 @@ func (dao *DAO) FindManyAs(objs interface{}, equals map[string]interface{}, fiel
 // Objs must be a pointer to an empty array of structs.
 func (dao *DAO) FindManyByIntervalAs(objs interface{}, dateKey string, ps, pe time.Time, fields ...string) (err error) {
 
-	q := M{dateKey: M{"$gte": ps, "$lt": pe}}
+	q := M{}
+	if !ps.IsZero() || !pe.IsZero() {
+		interval := M{}
+		if !ps.IsZero() {
+			interval["$gte"] = ps
+		}
+		if !pe.IsZero() {
+			interval["$lt"] = pe
+		}
+		q[dateKey] = interval
+	}
+	
 	err = dao.Coll.Find(q).Select(M{}.Select(fields...)).All(objs)
 	return
 }
