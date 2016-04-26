@@ -1,6 +1,6 @@
 package dao
 
-import "labix.org/v2/mgo/bson"
+import "gopkg.in/mgo.v2/bson"
 
 //------------------------------------------------------------
 // DAO update array methods
@@ -75,7 +75,7 @@ func (dao *DAO) Update_ArraysPullPushMany(id bson.ObjectId, pullFrom string, pul
 func (dao *DAO) Update_ArraysPullAddMany(id bson.ObjectId, pullFrom string, pullObjs []interface{}, addTo string, addObjs []interface{}) (err error) {
 
 	q := M{
-		"$pullAll": M{pullFrom: pullObjs},
+		"$pullAll":  M{pullFrom: pullObjs},
 		"$addToSet": M{addTo: M{"$each": addObjs}},
 	}
 	err = dao.Coll.UpdateId(id, q)

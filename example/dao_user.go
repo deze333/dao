@@ -2,8 +2,8 @@ package dao_app
 
 import (
 	adao "github.com/deze333/dao"
-	"labix.org/v2/mgo"
-	"labix.org/v2/mgo/bson"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 //------------------------------------------------------------

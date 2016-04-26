@@ -1,6 +1,6 @@
 package dao
 
-import "labix.org/v2/mgo"
+import "gopkg.in/mgo.v2"
 
 //------------------------------------------------------------
 // Collection Index model
